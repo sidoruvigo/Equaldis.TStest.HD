@@ -55,18 +55,36 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 
   cat("Call:", "\n")
   print(match.call())
+  if(missing(method)) {
+    method <- "us"
+    cat("'us' method used by default\n")
+  }
   method <- match.arg(method)
   DNAME <- deparse(substitute(c(X, Y)))
   METHOD <- "A two-sample test for the equality of distributions for high-dimensional data"
 
   match.arg(method)
 
-  if(missing(method)) {
-    method <- "us"
-    cat("'us' method used by default")
-  }
 
-  c2 = p = n = m = NULL
+
+  p <- nrow(X)
+  n <- ncol(X)
+  m <- ncol(Y)
+
+
+  c1 <- 1 / p
+  c2 <- 1.114 * mean(c(n, m)) ^ (-1 / 5)
+
+  sa <- apply(X, 1, var)
+  sb <- apply(Y, 1, var)
+
+  si <- ((n - 1) * unlist(sa) + (m - 1) * unlist(sb)) / (n + m - 2)
+
+  spool <- sqrt(c1 * sum(si))
+  h <- spool * c2
+
+
+  y <- c(rep(1, 5), rep(2, 5))
 
   #=============================================================================
   ## Functions to compute the statistic
@@ -567,8 +585,8 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 }
 
 
-# res <- Equaldis.TStest.HD(X, Y)
-#
+
+
 # # Example
 #
 # ### Data set to check the performance of the code
@@ -579,18 +597,4 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 #
 # X <- matrix(rnorm(p * n), ncol = n)
 # Y <- matrix(rnorm(p * n), ncol = n)
-#
-# ### Computing the bandwidth
-# c1 <- 1 / p
-# c2 <- 1.114 * mean(c(n, m)) ^ (-1 / 5)
-#
-# sa <- apply(X, 1, var)
-# sb <- apply(Y, 1, var)
-#
-# si <- ((n - 1) * unlist(sa) + (m - 1) * unlist(sb)) / (n + m - 2)
-#
-# spool <- sqrt(c1 * sum(si))
-# h <- spool * c2
-#
-#
-# y <- c(rep(1, 5), rep(2, 5))
+# res <- Equaldis.TStest.HD(X, Y)
