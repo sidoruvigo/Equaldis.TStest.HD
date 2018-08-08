@@ -1,7 +1,7 @@
 #' Package ‘Equaldis.TStest.HD’
 #'
 #' Documentation for package ‘Equaldis.TStest.HD’ version 1.0
-#'
+#' @aliases Equaldis.TStest.HDpackage
 #' @title A two-sample test for the equality of distributions for high-dimensional data
 #'
 #' @description This package implements four different methods to test the (global) null hypothesis of equality of the

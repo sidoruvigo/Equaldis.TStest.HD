@@ -44,7 +44,6 @@
 #' \item{D. Hart, Jeffrey.}
 #' }
 #' @references Cousido-Rocha, M., de Uña-Álvarez J., and Hart, J. (2018). A two-sample test for the equality of distributions for high-dimensional data. Preprint.
-#' @importFrom stats acf dnorm var
 #' @importFrom utils combn
 
 ################################################################################
@@ -356,7 +355,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   s <- e / sqrt((var))
 
   ### Corresponding p-value (show)
-  pvalor <- 1 - pnorm(s)
+  pvalor <- 1 - stats::pnorm(s)
   s
 
 
@@ -369,7 +368,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   s_spectral <- (e) / sqrt((var_spectral))
 
   ### Corresponding p-value (show)
-  pvalor_spectral <- 1 - pnorm(s_spectral)
+  pvalor_spectral <- 1 - stats::pnorm(s_spectral)
 
   s_spectral
 
@@ -383,7 +382,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   s_est_Dirichlet <- e / sqrt((var_est_Dirichlet))
 
   ### Corresponding p-value (show)
-  pvalor_Dirichlet <- 1 - pnorm(s_est_Dirichlet)
+  pvalor_Dirichlet <- 1 - stats::pnorm(s_est_Dirichlet)
 
   s_est_Dirichlet
 
@@ -395,7 +394,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 
   var_est_ind <- variance_est_ind(X, Y, h) ### save in memory
   s_est_ind <- e / sqrt(unlist(var_est_ind)) ### show
-  pvalor_est_ind <- 1 - pnorm(s_est_Dirichlet) ### show
+  pvalor_est_ind <- 1 - stats::pnorm(s_est_Dirichlet) ### show
 
 
   ### Spectral for independent data  (spec_ind)
@@ -403,7 +402,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 
   s_spectral_ind <- e / sqrt((var_spectral_ind)) ### show
 
-  pvalor_spectral_ind <- 1 - pnorm(s_spectral_ind)  ### show
+  pvalor_spectral_ind <- 1 - stats::pnorm(s_spectral_ind)  ### show
 
 
   ### Furthermore than these three methods we also reported one based on p-values
@@ -462,7 +461,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   pv <- permutation_diff_ind(X, Y, h)
 
   ### Graph in memory and acess if it selected
-  plot(1:p, pv, main = "Individual p-values", xlab = "Number of null hypothesis",
+  graphics::plot(1:p, pv, main = "Individual p-values", xlab = "Number of null hypothesis",
        ylab = "p-values")
 
 
@@ -474,7 +473,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
     part2 <- 0
     part3 <- 0
     k <- Lval(matrix(J), method = min)
-    c <- acf(J, type = "covariance", lag.max = k, plot = FALSE)$acf
+    c <- stats::acf(J, type = "covariance", lag.max = k, plot = FALSE)$acf
     c0 <- c[1]
     c <- c[-1]
     for (i in 1:k) {
@@ -508,7 +507,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   s_sR <- ((pv_ - mean_p) * sqrt(p)) / sqrt((var_pv_sR))
 
   ### Corresponding p-value
-  pvalor_s_sR <- pnorm(s_sR)
+  pvalor_s_sR <- stats::pnorm(s_sR)
 
 
   ### The p-values computing with indvidual bandwidth

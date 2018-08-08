@@ -2,8 +2,9 @@
 % Please edit documentation in R/Equaldis.TStest.HDpackage.r
 \docType{package}
 \name{Equaldis.TStest.HD-package}
-\alias{Equaldis.TStest.HD}
 \alias{Equaldis.TStest.HD-package}
+\alias{_PACKAGE}
+\alias{Equaldis.TStest.HDpackage}
 \title{A two-sample test for the equality of distributions for high-dimensional data}
 \value{
 \itemize{

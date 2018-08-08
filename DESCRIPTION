@@ -1,5 +1,5 @@
 Package: Equaldis.TStest.HD
-Title: A Two-sample Test for the Equality of Distributions for High-dimensional Data
+Title: A Two-Sample Test for the Equality of Distributions for High-Dimensional Data
 Version: 1.0
 Authors@R: c(
   person("Marta", "Cousido Rocha", email = "martacousido@uvigo.es", role = c("aut", "cre")),
