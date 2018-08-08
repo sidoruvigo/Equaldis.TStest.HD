@@ -8,7 +8,7 @@ Authors@R: c(
   person("Jeffrey", "D. Hart", email = "hart@stat.tamu.edu", role = "aut"))
 Maintainer: Marta Cousido Rocha <martacousido@uvigo.es>
 Description: For high-dimensional data whose main feature is a large number, p, of variables but a small sample size the equality of the marginal distributions of the p variables is tested by measuring the distance between the empirical characteristic functions computed from the two samples. If one rejects this global null hypothesis of no differences in distributions between the two groups, a set of permutation p-values is reported to identify which variables are not equal distributed in both groups.
-Depends: R (>= 3.5.0)
+Depends: R (>= 3.0.0)
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
