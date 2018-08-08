@@ -532,19 +532,19 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 
 
   statistic <- switch(method, spect = s_spectral, spect_ind = s_spectral_ind,
-                        boot = s, us = s_est_Dirichlet, us_ind = s_est_ind, perm = )
+                        boot = s, us = s_est_Dirichlet, us_ind = s_est_ind, perm = s_sR)
   names(statistic) <- "standarized statistic"
 
   statistic2 <- switch(method, spect = e, spect_ind = e,  boot = e, us = e, us_ind = e, perm = e)
 
   p.value <- switch(method, spect = pvalor_spectral, spect_ind = pvalor_spectral_ind,
-                    boot = pvalor, us = pvalor_Dirichlet, us_ind = pvalor_est_ind, perm = )
+                    boot = pvalor, us = pvalor_Dirichlet, us_ind = pvalor_est_ind, perm = pvalor_s_sR)
 
   met <- switch(method, spect = "spect", spect_ind = "spect_ind",  boot = "boot",
                 us = "us", us_ind = "us_ind", perm = "perm")
 
   variance <- switch(method, spect = var_spectral, spect_ind = var_spectral_ind,
-                     boot = var, us = var_est_Dirichlet, us_ind = var_est_ind, perm = )
+                     boot = var, us = var_est_Dirichlet, us_ind = var_est_ind, perm = var_pv_sR)
 
   # p <- switch(method, spect = , spect_ind = ,  boot = , us = , us_ind = , perm = )
   #
@@ -566,7 +566,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 }
 
 
-
+res <- Equaldis.TStest.HD(X, Y)
 
 # Example
 
