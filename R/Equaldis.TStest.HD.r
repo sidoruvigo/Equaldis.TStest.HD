@@ -45,6 +45,7 @@
 #' }
 #' @references Cousido-Rocha, M., de Uña-Álvarez J., and Hart, J. (2018). A two-sample test for the equality of distributions for high-dimensional data. Preprint.
 #' @importFrom utils combn
+#' @export
 
 ################################################################################
 # Two-sample problem
