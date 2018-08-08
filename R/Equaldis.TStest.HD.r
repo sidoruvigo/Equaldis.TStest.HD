@@ -36,7 +36,6 @@
 #' \item{I.permutation.p.values: }{the p individual permutation p-values.}
 #' \item{data.name: }{a character string giving the name of the data.}
 #'
-#'
 #' @author
 #' \itemize{
 #' \item{Marta Cousido-Rocha}
@@ -72,7 +71,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   ## Functions to compute the statistic
   #=============================================================================
 
-  ### Method to choose m ###
+  ### Method to choose m
   mval <- function(rho, lagmax, kn, rho.crit) {
 
     ## Compute the number of insignificant runs following each rho(k),
@@ -85,7 +84,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
     ## smallest rho(k) such that this holds (see footnote c of
     ## Politis and White for further details).
     if(any(num.ins == kn)){
-      return( which(num.ins == kn)[1] )
+      return(which(num.ins == kn)[1])
     } else {
       ## If no runs of length kn are insignificant, take the smallest
       ## value of rho(k) that is significant.
@@ -103,7 +102,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
           ## significant.
           return(max(lag.sig))
         }
-      } else{
+      } else {
 
         ## When there are no significant lags, mhat must be the
         ## smallest positive integer (footnote c), hence mhat is set
@@ -118,7 +117,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
     n <- nrow(x)
     d <- ncol(x)
 
-    ## parameters for adapting the approach of Politis and White (2004)
+    ## Parameters for adapting the approach of Politis and White (2004)
     kn <- max(5, ceiling(log10(n)))
     lagmax <- ceiling(sqrt(n)) + kn
     rho.crit <- 1.96 * sqrt(log10(n) / n)
@@ -137,13 +136,12 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   ##########################################
 
   ### Spectral variance estimator
-
   variance_spectral <- function(J) {
     part2 <- 0
     k <- Lval(matrix(J), method = min)
     c <- stats::acf(J, type = "covariance", lag.max = k, plot = FALSE)$acf
     c0 <- c[1]
-    c <- c[-1]
+    c  <- c[-1]
     for (i in 1:k){
       part2 <- part2 + (1 - (i / (k + 1))) * c[i]
     }
@@ -153,7 +151,6 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   }
 
   # Particular case of independence
-
   variance_spectral_ind <- function(J) {
     k <- 1
     c <- stats::acf(J, type = "covariance", lag.max = k, plot = FALSE)$acf
@@ -163,7 +160,6 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 
 
   ### Variance block bootstrap
-
   variance <- function(pv) {
 
     p <- length(pv)
@@ -189,7 +185,6 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   #############################################
 
   ### Variance estimator based on serfling and time series ###
-
   VarJhat <- function(x, y, h) {
 
     E1 <- E1hat(c(x, y), h)
@@ -315,9 +310,9 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
     X <- stats::dnorm(X, sd = sqrt(2) * h)
     diag(X) <- 0
     t1 <- sum(X) / (n * (n - 1))
-    Y <- t(matrix(y, m, m))
-    Y <- y - Y
-    Y <- stats::dnorm(Y, sd = sqrt(2) * h)
+    Y  <- t(matrix(y, m, m))
+    Y  <- y - Y
+    Y  <- stats::dnorm(Y, sd = sqrt(2) * h)
     diag(Y) <- 0
     t2 <- sum(Y) / (m * (m - 1))
     XY <- x[1] - y
@@ -411,8 +406,9 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   pvalor_spectral_ind <- 1 - pnorm(s_spectral_ind)  ### show
 
 
-  ### Furthermore than these three methods we also reported one based on p-values instead of
-  ### Ji statistics
+  ### Furthermore than these three methods we also reported one based on p-values
+  ### instead of Ji statistics
+
 
   ###############################
   ### Permutation test        ###
@@ -501,7 +497,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   N <- n + m
   if (m == n) {
     nm <- ((factorial(N)) / (factorial(n) * factorial(N - n))) / 2
-  } else{
+  } else {
     nm <- ((factorial(N)) / (factorial(n) * factorial(N - n)))
   }
   ### Number of possible permutations
@@ -519,7 +515,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   sa <- apply(X, 1, var)
   sb <- apply(Y, 1, var)
   si <- ((n - 1) * unlist(sa) + (m - 1) * unlist(sb)) / (n + m - 2)
-  h <- sqrt(si) * c2
+  h  <- sqrt(si) * c2
 
 
   permutation_diff_ind <- function(X, Y, h) {
@@ -535,25 +531,33 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   pv <- permutation_diff_ind(X, Y, h)
 
 
-  statistic <- switch(method, spect = , spect_ind = ,  boot = , us= , us_ind = , perm = )
+  statistic <- switch(method, spect = s_spectral, spect_ind = s_spectral_ind,
+                        boot = s, us = s_est_Dirichlet, us_ind = s_est_ind, perm = )
   names(statistic) <- "standarized statistic"
 
-  statistic2 <- switch(method, spect = , spect_ind = ,  boot = , us= , us_ind = , perm = )
+  statistic2 <- switch(method, spect = e, spect_ind = e,  boot = e, us = e, us_ind = e, perm = e)
 
-  p.value <- switch(method, spect = , spect_ind = ,  boot = , us= , us_ind = , perm = )
+  p.value <- switch(method, spect = pvalor_spectral, spect_ind = pvalor_spectral_ind,
+                    boot = pvalor, us = pvalor_Dirichlet, us_ind = pvalor_est_ind, perm = )
 
-  met <- switch(method, spect = , spect_ind = ,  boot = , us= , us_ind = , perm = )
+  met <- switch(method, spect = "spect", spect_ind = "spect_ind",  boot = "boot",
+                us = "us", us_ind = "us_ind", perm = "perm")
 
-  variance <- switch(method, spect = , spect_ind = ,  boot = , us= , us_ind = , perm = )
+  variance <- switch(method, spect = var_spectral, spect_ind = var_spectral_ind,
+                     boot = var, us = var_est_Dirichlet, us_ind = var_est_ind, perm = )
 
-  m <- switch(method, spect = , spect_ind = ,  boot = , us= , us_ind = , perm = )
+  # p <- switch(method, spect = , spect_ind = ,  boot = , us = , us_ind = , perm = )
+  #
+  # n <- switch(method, spect = , spect_ind = ,  boot = , us = , us_ind = , perm = )
+  #
+  # m <- switch(method, spect = , spect_ind = ,  boot = , us = , us_ind = , perm = )
 
   RVAL <- list(statistic = statistic, p.value = p.value, method = METHOD,
                data.name = DNAME, sample.size = n, method1 = met)
 
   RVAL2 <- list(standarized.statistic = statistic2, p.value = p.value,
-                statistic = e, variance = variance, m = m, k = p,
-                n = n, method = met, data.name = DNAME)
+                statistic = e, variance = variance, p = p, n = n, m = m,
+                method = met, I.statistics = J, I.permutation.p.values = pv, data.name = DNAME)
   class(RVAL) <- "htest"
 
   print(RVAL)
