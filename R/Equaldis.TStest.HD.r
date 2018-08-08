@@ -65,6 +65,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
     cat("'us' method used by default")
   }
 
+  c2 = p = n = m = NULL
 
   #=============================================================================
   ## Functions to compute the statistic
