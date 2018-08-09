@@ -1,7 +1,8 @@
 #' @title A two-sample test for the equality of distributions for high-dimensional data
 #' @aliases Equaldis.TStest.HD
 #' @description A two-sample test for the equality of distributions for high-dimensional data
-#' @details The function implements the two-sample tests proposed by Cousido-Rocha, et al. (2018). The methods “spect”,“boot” and “us” are based on a global statistic which is the average of individual statistics
+#' @details The function implements the two-sample tests proposed by Cousido-Rocha, et al. (2018).
+#'The methods “spect”,“boot” and “us” are based on a global statistic which is the average of individual statistics
 #'corresponding to each of the p variables. Each of these individual statistics measure the difference between
 #'the empirical characteristic functions computed from the two samples. An alternative expression of them
 #'show that it can be interpreted as a difference between the variability in each of the two samples and the
@@ -22,6 +23,8 @@
 #' @param X A matrix where each row is one of the p-samples in the first group.
 #' @param Y A matrix where each row is one of the p-samples in the second group.
 #' @param method the two-sample test. By default the “us” method is computed. See details.
+#' @param b TODO
+#' @param b.I TODO
 #'
 #' @return A list containing the following components:
 #' \item{standarized statistic: }{the value of the standarized statistic.}
@@ -47,30 +50,37 @@
 #' @importFrom utils combn
 #' @export
 
+
 ################################################################################
 # Two-sample problem
 ################################################################################
 
-Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "us", "us_ind", "perm")) {
+Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "us", "us_ind", "perm"),
+                               b = c("global", "individual"), b.I = FALSE) {
 
   cat("Call:", "\n")
   print(match.call())
+
   if(missing(method)) {
     method <- "us"
     cat("'us' method used by default\n")
   }
+
+  if(missing(b)) {
+    b <- "global"
+    cat("'global' bandwith used by default\n")
+  }
+
   method <- match.arg(method)
-  DNAME <- deparse(substitute(c(X, Y)))
+  DNAME  <- deparse(substitute(c(X, Y)))
   METHOD <- "A two-sample test for the equality of distributions for high-dimensional data"
 
   match.arg(method)
-
-
+  match.arg(b)
 
   p <- nrow(X)
   n <- ncol(X)
   m <- ncol(Y)
-
 
   c1 <- 1 / p
   c2 <- 1.114 * mean(c(n, m)) ^ (-1 / 5)
@@ -83,8 +93,8 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   spool <- sqrt(c1 * sum(si))
   h <- spool * c2
 
-
   y <- c(rep(1, 5), rep(2, 5))
+
 
   #=============================================================================
   ## Functions to compute the statistic
@@ -114,7 +124,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
         if(k.sig == 1) {
           ## When only one lag is significant, mhat is the sole
           ## significant rho(k).
-          return( lag.sig )
+          return(lag.sig)
         } else {
           ## If there are more than one significant lags but no runs
           ## of length kn, take the largest value of rho(k) that is
@@ -132,6 +142,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   }
 
   Lval <- function(x, method = mean) {
+
     x <- matrix(x)
     n <- nrow(x)
     d <- ncol(x)
@@ -156,12 +167,13 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 
   ### Spectral variance estimator
   variance_spectral <- function(J) {
+
     part2 <- 0
     k <- Lval(matrix(J), method = min)
     c <- stats::acf(J, type = "covariance", lag.max = k, plot = FALSE)$acf
     c0 <- c[1]
     c  <- c[-1]
-    for (i in 1:k){
+    for (i in 1:k) {
       part2 <- part2 + (1 - (i / (k + 1))) * c[i]
     }
 
@@ -177,19 +189,18 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
     return(statistic)
   }
 
-
   ### Variance block bootstrap
   variance <- function(pv) {
 
     p <- length(pv)
-    #print(h)
+    # print(h)
     # h = 0.8
     k <- Lval((pv), method = min)
-    #  bootstats = 1:(p - k + 1)
-    #bootstats[1] = sum(J[1:k])
-    #for(j in 1:(p - k)) {
-    #bootstats[j + 1] = bootstats[j] - J[j] + J[j + k]
-    #}
+    # bootstats = 1:(p - k + 1)
+    # bootstats[1] = sum(J[1:k])
+    # for(j in 1:(p - k)) {
+    # bootstats[j + 1] = bootstats[j] - J[j] + J[j + k]
+    # }
     bootstats <- 1:(p / k)
     for (j in 1:(p / k)) {
       bootstats[j] <- sum(pv[(k * (j - 1) + 1):(j * k)])
@@ -203,14 +214,14 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   ### Variance estimator (Non-stationary)  ####
   #############################################
 
-  ### Variance estimator based on serfling and time series ###
+  ### Variance estimator based on serfling and time series
   VarJhat <- function(x, y, h) {
 
     E1 <- E1hat(c(x, y), h)
     E2 <- E2hat(c(x, y), h)
     E3 <- E3hat(c(x, y), h)
-    n <- length(x)
-    m <- length(y)
+    n  <- length(x)
+    m  <- length(y)
     c1 <- (n - 2) * (n - 3) / (n * (n - 1))
     c1 <- c1 + (m - 2) * (m - 3) / (m * (m - 1))
     c1 <- c1 + 4 * (n - 1) * (m - 1) / (n * m)
@@ -234,9 +245,8 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
     for (i in 1:(N - 1)) {
       for (j in (i + 1):N) {
         t1 <- stats::dnorm(Z[i] - Z[j], sd = sqrt(2) * h)
-        t1 <-
-          sum(t1 * Zmat) - sum(t1 * Zmat[i,] + t1 * Zmat[j,] + t1 * Zmat[, i] +
-                                 t1 * Zmat[, j]) + 2 * t1 * Zmat[i, j]
+        t1 <- sum(t1 * Zmat) - sum(t1 * Zmat[i,] + t1 * Zmat[j,] + t1 * Zmat[, i] +
+                                   t1 * Zmat[, j]) + 2 * t1 * Zmat[i, j]
         E1 <- E1 + t1
       }
     }
@@ -262,6 +272,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
     E2 / Number
   }
 
+
   E3hat <- function(Z, h) {
     N  <- length(Z)
     E3 <- 0
@@ -285,7 +296,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
     }
 
     varest1 <- sum(VJ)
-    part2 <- 0
+    part2   <- 0
     k <- Lval(matrix(J), method = min)
     c <- 1:k
 
@@ -366,64 +377,69 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   # The test statistic before the standardization (also necessary to report in the package)
   e <- sum(J) / sqrt(p)
 
+  if (method == "boot") {
+    ### Bootstrap
+    ### Variance of the statistic (save in memory and access to it)
+    var <- variance(J)
 
-  ### Bootstrap
-  ### Variance of the statistic (save in memory and access to it)
-  var <- variance(J)
+    ### Standarized test statistic using the bootstrap method (show)
+    s <- e / sqrt((var))
 
-  ### Standarized test statistic using the bootstrap method (show)
-  s <- e / sqrt((var))
+    ### Corresponding p-value (show)
+    pvalor <- 1 - stats::pnorm(s)
+    s
+  }
 
-  ### Corresponding p-value (show)
-  pvalor <- 1 - stats::pnorm(s)
-  s
+  if(method == "spect") {
+    ### Spectral
 
+    ### Variance of the statistic (save in memory and access to it)
+    var_spectral <- variance_spectral(J)
 
-  ### Spectral
+    ### Standarized test statistic using the spectral method (show)
+    s_spectral <- (e) / sqrt((var_spectral))
 
-  ### Variance of the statistic (save in memory and access to it)
-  var_spectral <- variance_spectral(J)
+    ### Corresponding p-value (show)
+    pvalor_spectral <- 1 - stats::pnorm(s_spectral)
 
-  ### Standarized test statistic using the spectral method (show)
-  s_spectral <- (e) / sqrt((var_spectral))
+    s_spectral
+  }
 
-  ### Corresponding p-value (show)
-  pvalor_spectral <- 1 - stats::pnorm(s_spectral)
+  if(method == "us" | method == "us_ind") {
+    ### Serfling Dirichlet
 
-  s_spectral
+    ### Variance of the statistic (save in memory and access to it)
+    var_est_Dirichlet <- variance_est_Dirichlet(X, Y, h, J)
 
+    ### Standarized test statistic using the Serfling Dirichlet method (show)
+    s_est_Dirichlet <- e / sqrt((var_est_Dirichlet))
 
-  ### Serfling Dirichlet
+    ### Corresponding p-value (show)
+    pvalor_Dirichlet <- 1 - stats::pnorm(s_est_Dirichlet)
 
-  ### Variance of the statistic (save in memory and access to it)
-  var_est_Dirichlet <- variance_est_Dirichlet(X, Y, h, J)
-
-  ### Standarized test statistic using the Serfling Dirichlet method (show)
-  s_est_Dirichlet <- e / sqrt((var_est_Dirichlet))
-
-  ### Corresponding p-value (show)
-  pvalor_Dirichlet <- 1 - stats::pnorm(s_est_Dirichlet)
-
-  s_est_Dirichlet
+    s_est_Dirichlet
+  }
 
   #-----------------------------------------------------------------------------
   # Versions for independent data
   #-----------------------------------------------------------------------------
 
-  ### Serfling for independent data (us_ind)
+  if (method == "us_ind") {
+    ### Serfling for independent data (us_ind)
 
-  var_est_ind <- variance_est_ind(X, Y, h) ### save in memory
-  s_est_ind <- e / sqrt(unlist(var_est_ind)) ### show
-  pvalor_est_ind <- 1 - stats::pnorm(s_est_Dirichlet) ### show
+    var_est_ind <- variance_est_ind(X, Y, h) ### save in memory
+    s_est_ind <- e / sqrt(unlist(var_est_ind)) ### show
+    pvalor_est_ind <- 1 - stats::pnorm(s_est_Dirichlet) ### show
+  }
 
+  if (method == "spect_ind") {
+    ### Spectral for independent data  (spect_ind)
+    var_spectral_ind <- variance_spectral_ind(J)### save in memory
 
-  ### Spectral for independent data  (spec_ind)
-  var_spectral_ind <- variance_spectral_ind(J)### save in memory
+    s_spectral_ind <- e / sqrt((var_spectral_ind)) ### show
 
-  s_spectral_ind <- e / sqrt((var_spectral_ind)) ### show
-
-  pvalor_spectral_ind <- 1 - stats::pnorm(s_spectral_ind)  ### show
-
+    pvalor_spectral_ind <- 1 - stats::pnorm(s_spectral_ind)  ### show
+  }
 
   ### Furthermore than these three methods we also reported one based on p-values
   ### instead of Ji statistics
@@ -432,6 +448,16 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   ###############################
   ### Permutation test        ###
   ###############################
+
+  if(method == "perm" | b.I == TRUE) {
+
+# if(method != "perm" & b.I == TRUE){
+#   print("OK")
+# }
+#
+# if(method != "perm" & b.I == FALSE){
+# } else {
+  # if(method == "perm" | b.I == TRUE) {
 
   kern.permute <- function(x, y, b) {
     m <- length(x)
@@ -468,6 +494,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
     kern.permute(x, y, b)[3]
   }
 
+  if(b == "global"){
   permutation_diff_ind <- function(X, Y, h) {
     p <- nrow(X)
     o <- rep(1, p)
@@ -478,15 +505,42 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   }
 
   ### P-values corresponding to each null hypothesis (in memory and access to them)
+
   pv <- permutation_diff_ind(X, Y, h)
+  }
+
+
+  if(b == "individual") {
+
+    ### The p-values computing with indvidual bandwidth
+    sa <- apply(X, 1, var)
+    sb <- apply(Y, 1, var)
+    si <- ((n - 1) * unlist(sa) + (m - 1) * unlist(sb)) / (n + m - 2)
+    h  <- sqrt(si) * c2
+
+
+    permutation_diff_ind <- function(X, Y, h) {
+      p <- nrow(X)
+      o <- rep(1, p)
+      for (i in 1:p) {
+        o[i] <- as.numeric(kern.permute_1(X[i,], Y[i,], h[i]))
+      }
+      return(o)
+    }
+
+    ### P-values corresponding to each null hypothesis (in memory and access to them)
+    pv <- permutation_diff_ind(X, Y, h)
+  }
+
+
 
   ### Graph in memory and acess if it selected
-  graphics::plot(1:p, pv, main = "Individual p-values", xlab = "Number of null hypothesis",
-       ylab = "p-values")
+  # graphics::plot(1:p, pv, main = "Individual p-values", xlab = "Number of null hypothesis",
+  #      ylab = "p-values")
 
 
   ############################
-  ### variance estimators ####
+  ### Variance estimators ####
   ############################
 
   variance_spectralR <- function(J) {
@@ -511,6 +565,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   ### Variance of the statistic
   var_pv_sR <- variance_spectralR(pv)
 
+
   ### Non standarized statistic
   pv_ <- mean(pv)
   N <- n + m
@@ -529,59 +584,55 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   ### Corresponding p-value
   pvalor_s_sR <- stats::pnorm(s_sR)
 
-
-  ### The p-values computing with indvidual bandwidth
-  sa <- apply(X, 1, var)
-  sb <- apply(Y, 1, var)
-  si <- ((n - 1) * unlist(sa) + (m - 1) * unlist(sb)) / (n + m - 2)
-  h  <- sqrt(si) * c2
-
-
-  permutation_diff_ind <- function(X, Y, h) {
-    p <- nrow(X)
-    o <- rep(1, p)
-    for (i in 1:p) {
-      o[i] <- as.numeric(kern.permute_1(X[i,], Y[i,], h[i]))
-    }
-    return(o)
-  }
-
-  ### P-values corresponding to each null hypothesis (in memory and access to them)
-  pv <- permutation_diff_ind(X, Y, h)
-
+}
 
   statistic <- switch(method, spect = s_spectral, spect_ind = s_spectral_ind,
                         boot = s, us = s_est_Dirichlet, us_ind = s_est_ind, perm = s_sR)
   names(statistic) <- "standarized statistic"
 
-  statistic2 <- switch(method, spect = e, spect_ind = e,  boot = e, us = e, us_ind = e, perm = e)
+  statistic2 <- switch(method, spect = e, spect_ind = e,  boot = e, us = e, us_ind = e,
+                       perm = e)
 
   p.value <- switch(method, spect = pvalor_spectral, spect_ind = pvalor_spectral_ind,
-                    boot = pvalor, us = pvalor_Dirichlet, us_ind = pvalor_est_ind, perm = pvalor_s_sR)
+                    boot = pvalor, us = pvalor_Dirichlet, us_ind = pvalor_est_ind,
+                    perm = pvalor_s_sR)
 
   met <- switch(method, spect = "spect", spect_ind = "spect_ind",  boot = "boot",
                 us = "us", us_ind = "us_ind", perm = "perm")
 
   variance <- switch(method, spect = var_spectral, spect_ind = var_spectral_ind,
-                     boot = var, us = var_est_Dirichlet, us_ind = var_est_ind, perm = var_pv_sR)
-
-  # p <- switch(method, spect = , spect_ind = ,  boot = , us = , us_ind = , perm = )
-  #
-  # n <- switch(method, spect = , spect_ind = ,  boot = , us = , us_ind = , perm = )
-  #
-  # m <- switch(method, spect = , spect_ind = ,  boot = , us = , us_ind = , perm = )
+                     boot = var, us = var_est_Dirichlet, us_ind = var_est_ind,
+                     perm = var_pv_sR)
 
   RVAL <- list(statistic = statistic, p.value = p.value, method = METHOD,
                data.name = DNAME, sample.size = n, method1 = met)
 
+
+  if(method == "perm"){
   RVAL2 <- list(standarized.statistic = statistic2, p.value = p.value,
                 statistic = e, variance = variance, p = p, n = n, m = m,
-                method = met, I.statistics = J, I.permutation.p.values = pv, data.name = DNAME)
+                method = met, I.statistics = J, I.permutation.p.values = pv,
+                data.name = DNAME)
+  }
+
+  if (method != "perm" & b.I == FALSE) {
+    RVAL2 <- list(standarized.statistic = statistic2, p.value = p.value,
+                  statistic = e, variance = variance, p = p, n = n, m = m,
+                  method = met, I.statistics = J, data.name = DNAME)
+  }
+
+
+  if (method != "perm" & b.I == TRUE) {
+    RVAL2 <- list(standarized.statistic = statistic2, p.value = p.value,
+                  statistic = e, variance = variance, p = p, n = n, m = m,
+                  method = met, I.statistics = J, I.permutation.p.values = pv,
+                  data.name = DNAME)
+  }
+
   class(RVAL) <- "htest"
 
   print(RVAL)
   return(invisible(RVAL2))
-
 }
 
 
@@ -597,4 +648,4 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 #
 # X <- matrix(rnorm(p * n), ncol = n)
 # Y <- matrix(rnorm(p * n), ncol = n)
-# res <- Equaldis.TStest.HD(X, Y)
+# system.time(res <- Equaldis.TStest.HD(X, Y, method = "perm"))
