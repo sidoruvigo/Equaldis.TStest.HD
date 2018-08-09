@@ -5,7 +5,7 @@
 \title{A two-sample test for the equality of distributions for high-dimensional data}
 \usage{
 Equaldis.TStest.HD(X, Y, method = c("spect", "spect_ind", "boot", "us",
-  "us_ind", "perm"))
+  "us_ind", "perm"), b = c("global", "individual"), b.I = FALSE)
 }
 \arguments{
 \item{X}{A matrix where each row is one of the p-samples in the first group.}
@@ -13,6 +13,10 @@ Equaldis.TStest.HD(X, Y, method = c("spect", "spect_ind", "boot", "us",
 \item{Y}{A matrix where each row is one of the p-samples in the second group.}
 
 \item{method}{the two-sample test. By default the “us” method is computed. See details.}
+
+\item{b}{TODO}
+
+\item{b.I}{TODO}
 }
 \value{
 A list containing the following components:
@@ -32,7 +36,8 @@ A list containing the following components:
 A two-sample test for the equality of distributions for high-dimensional data
 }
 \details{
-The function implements the two-sample tests proposed by Cousido-Rocha, et al. (2018). The methods “spect”,“boot” and “us” are based on a global statistic which is the average of individual statistics
+The function implements the two-sample tests proposed by Cousido-Rocha, et al. (2018).
+The methods “spect”,“boot” and “us” are based on a global statistic which is the average of individual statistics
 corresponding to each of the p variables. Each of these individual statistics measure the difference between
 the empirical characteristic functions computed from the two samples. An alternative expression of them
 show that it can be interpreted as a difference between the variability in each of the two samples and the
