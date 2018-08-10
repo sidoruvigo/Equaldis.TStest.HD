@@ -591,7 +591,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   names(statistic) <- "standarized statistic"
 
   statistic2 <- switch(method, spect = e, spect_ind = e,  boot = e, us = e, us_ind = e,
-                       perm = e)
+                       perm = (pv_)*sqrt(p))
 
   p.value <- switch(method, spect = pvalor_spectral, spect_ind = pvalor_spectral_ind,
                     boot = pvalor, us = pvalor_Dirichlet, us_ind = pvalor_est_ind,
@@ -638,7 +638,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 
 
 
-# # Example
+# Example
 #
 # ### Data set to check the performance of the code
 #
