@@ -87,9 +87,10 @@
 #' res2
 #' res3 <- Equaldis.TStest.HD(X, Y, method = "us")
 #' res3
+#' \donttest{
 #' res4 <- Equaldis.TStest.HD(X, Y, method = "perm")
 #' res4
-#'
+#' }
 #' ### The four method reject the global null hypothesis.
 #' ### Hence, we use the individual permutation p-values
 #' ### to identify which genes are not equally distributed under the two tumor types.
