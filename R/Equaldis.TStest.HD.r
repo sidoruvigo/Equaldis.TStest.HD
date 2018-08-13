@@ -1,30 +1,46 @@
 #' @title A two-sample test for the equality of distributions for high-dimensional data
 #' @aliases Equaldis.TStest.HD
-#' @description A two-sample test for the equality of distributions for high-dimensional data
+#' @description Performs the four tests of equality of the p marginal distributions for two groups proposed in Cousido-
+#' Rocha et al. (2018). The methods have been designed for the low sample size and high dimensional
+#' setting. Furthermore, the possibility that the p variables in each data set can be weakly dependent is
+#' considered. The function also reports a set of p permutation p-values, each of them is derived from testing
+#' the equality of distributions in the two groups for each of the variables separately. These p-values are
+#' useful when the proposed tests rejects the global null hypothesis since it is possible to identify which
+#' variables have been contributed to this significance.
 #' @details The function implements the two-sample tests proposed by Cousido-Rocha, et al. (2018).
-#'The methods “spect”,“boot” and “us” are based on a global statistic which is the average of individual statistics
-#'corresponding to each of the p variables. Each of these individual statistics measure the difference between
-#'the empirical characteristic functions computed from the two samples. An alternative expression of them
-#'show that it can be interpreted as a difference between the variability in each of the two samples and the
-#'variability in the combined sample. The global statistic (average) is standarized using different variance
-#'estimators given place to the three different methods. The method “spect” uses a variance estimator
-#'based on the spectral analysis theory, the method “boot” implements the block bootstrap to estimate the
-#'variance and the method “us” employs a variance estimators derived from U-statistic theory
-#'(more details in Cousido-Rocha et al., 2018). The methods “spect” and “boot” are suitable under some theoretical
-#'assumptions which include that the sequence of individual statistics that defined the global statistic is
-#'strictly stationary whereas the method “us” avoids such assumption. However the methods “spect” and
-#'“boot” have been checked in simulations and they perform well even when such assumption is violated.
-#'The asymptotic normality (when p tends to infinity) of the standardized version of the statistic is used
-#'to compute the corresponding p-value. On the other hand, Cousido-Rocha et al. (2018) also proposed
-#'the method “perm” whose global statistic is the avergae of the permutation p-values corresponding to
-#'the individual statistics mentioned above. This method assumes that the sequence of p-values is strictly
-#'stationary, however in simulations it seems that it performs where this assumption does not hold.
-#'Furthermore than defining a new global test these p-values can be also used when the global null hypothesis.
+#' The methods “spect”,“boot” and “us” are based on a global statistic which is the average of p individual statistics
+#' corresponding to each of the p variables. Each of these individual statistics measure the difference
+#' between the empirical characteristic functions computed from the two samples. An alternative expression
+#' of them show that it can be interpreted as a difference between the variability in each of the two samples
+#' and the variability in the combined sample. The global statistic (average) is standarized using different
+#' variance estimators given place to the three different methods. The method “spect” uses a variance
+#' estimator based on the spectral analysis theory, the method “boot” implements the block bootstrap to
+#' estimate the variance and the method “us” employs a variance estimator derived from U-statistic theory
+#' (more details in Cousido-Rocha et al., 2018). The methods “spect” and “boot” are suitable under
+#' some theoretical assumptions which include that the sequence of individual statistics that defined the
+#' global statistic is strictly stationary whereas the method “us” avoids such assumption. However the
+#' methods “spect” and “boot” have been checked in simulations and they perform well even when such
+#' assumption is violated. The methods “spect” and “us” have their corresponding version for independent
+#' data (“spect ind” and “us ind”), for which the variance estimator is simplified taking into acount the
+#' independence of the variables.
+#' The asymptotic normality (when p tends to infinity) of the standardized version of the statistic is used
+#' to compute the corresponding p-value. On the other hand, Cousido-Rocha et al. (2018) also proposed
+#' the method “perm” whose global statistic is the average of the permutation p-values corresponding to
+#' the individual statistics mentioned above. This method assumes that the sequence of p-values is strictly
+#' stationary, however in simulations it seems that it performs well where this assumption does not hold.
+#' Furthermore than defining a new global test these p-values can be also used when the global null hypothesis
+#' is rejected and we need to identify which of the p variables have been contributed to that rejection.
+#' The global statistic depends on a parameter which plays a similar role of a smoothing parameter
+#' or bandwidth in kernel density estimation. For the four global tests this parameter is estimated using
+#' the information of all the variables or features. For the individual statistics on based of which the
+#' permutation p-values are computed, we have two possibilities: (a) use the value employed in the global
+#' test (b I.permutation.p.values=“global”). (b) estimate this parameter for each variable independently
+#' using only its sample information (b I.permutation.p.values=“individual”).
 #' @param X A matrix where each row is one of the p-samples in the first group.
 #' @param Y A matrix where each row is one of the p-samples in the second group.
 #' @param method the two-sample test. By default the “us” method is computed. See details.
-#' @param b TODO
-#' @param b.I TODO
+#' @param I.permutation.p.values Logical. Default is FALSE. A variable indicating whether to compute the permutation p-values or not when the selected method is not “perm”. See details.
+#' @param b_I.permutation.p.values The method used to compute the individual statistics on which are based the permutation p-values. Default is “global”. See details.
 #'
 #' @return A list containing the following components:
 #' \item{standarized statistic: }{the value of the standarized statistic.}
@@ -47,6 +63,40 @@
 #' \item{D. Hart, Jeffrey.}
 #' }
 #' @references Cousido-Rocha, M., de Uña-Álvarez J., and Hart, J. (2018). A two-sample test for the equality of distributions for high-dimensional data. Preprint.
+#' @examples
+#' # We consider the microarray study of hereditary breast cancer in Hedenfalk et
+#' #al. (2001). The data set consists of p = 3226 logged gene expression levels
+#' # measured on n = 7 patients with breast tumors having BRCA1 mutations and on
+#' # n = 8 patients with breast tumors having BRCA2 mutations. Our interested is
+#' # to test the null hypothesis that the distribution of each of 500 selected
+#' #genes is the same for the two types of tumor, BRCA1 tumor and BRCA2 tumor.
+#' # We use the test for this purpose the four methods proposed in Cousido-Rocha et al. (2018).
+#' #library(Equalden.HD)
+#' #data(Hedenfalk)
+#' ### First group
+#' X <- Equalden.HD::Hedenfalk[1:500, 1:7]
+#' p <- dim(X)[1]
+#' n <- dim(X)[2]
+#' ### Second group
+#' Y <- Equalden.HD::Hedenfalk[1:500, 8:15]
+#' m <- dim(X)[2]
+#'
+#' res1 <- Equaldis.TStest.HD(X, Y, method = "spect")
+#' res1
+#' res2 <- Equaldis.TStest.HD(X, Y, method="boot")
+#' res2
+#' res3 <- Equaldis.TStest.HD(X, Y, method = "us")
+#' res3
+#' res4 <- Equaldis.TStest.HD(X, Y, method = "perm")
+#' res4
+#'
+#' ### The four method reject the global null hypothesis.
+#' ### Hence, we use the individual permutation p-values
+#' ### to identify which genes are not equally distributed under the two tumor types.
+#' pv <- res4$I.permutation.p.values
+#' ### We correct the multiplicity of tests using Benjamini and Hochberg (1995) method.
+#' #library(sgof)
+#' sgof::BH(pv)
 #' @importFrom utils combn
 #' @export
 
@@ -56,18 +106,18 @@
 ################################################################################
 
 Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "us", "us_ind", "perm"),
-                               b = c("global", "individual"), b.I = FALSE) {
+                               I.permutation.p.values = FALSE, b_I.permutation.p.values = c("global", "individual")) {
 
   cat("Call:", "\n")
   print(match.call())
 
-  if(missing(method)) {
+  if (missing(method)) {
     method <- "us"
     cat("'us' method used by default\n")
   }
 
-  if(missing(b)) {
-    b <- "global"
+  if (missing(b_I.permutation.p.values)) {
+    b_I.permutation.p.values <- "global"
     cat("'global' bandwith used by default\n")
   }
 
@@ -76,7 +126,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   METHOD <- "A two-sample test for the equality of distributions for high-dimensional data"
 
   match.arg(method)
-  match.arg(b)
+  match.arg(b_I.permutation.p.values)
 
   p <- nrow(X)
   n <- ncol(X)
@@ -449,15 +499,15 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   ### Permutation test        ###
   ###############################
 
-  if(method == "perm" | b.I == TRUE) {
+  if(method == "perm" | I.permutation.p.values == TRUE) {
 
-# if(method != "perm" & b.I == TRUE){
+# if(method != "perm" & I.permutation.p.values == TRUE){
 #   print("OK")
 # }
 #
-# if(method != "perm" & b.I == FALSE){
+# if(method != "perm" & I.permutation.p.values == FALSE){
 # } else {
-  # if(method == "perm" | b.I == TRUE) {
+  # if(method == "perm" | I.permutation.p.values == TRUE) {
 
   kern.permute <- function(x, y, b) {
     m <- length(x)
@@ -494,7 +544,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
     kern.permute(x, y, b)[3]
   }
 
-  if(b == "global"){
+  if(b_I.permutation.p.values == "global"){
   permutation_diff_ind <- function(X, Y, h) {
     p <- nrow(X)
     o <- rep(1, p)
@@ -510,7 +560,7 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
   }
 
 
-  if(b == "individual") {
+  if(b_I.permutation.p.values == "individual") {
 
     ### The p-values computing with indvidual bandwidth
     sa <- apply(X, 1, var)
@@ -609,21 +659,21 @@ Equaldis.TStest.HD <- function(X, Y, method = c("spect", "spect_ind", "boot", "u
 
 
   if(method == "perm"){
-  RVAL2 <- list(standarized.statistic = statistic2, p.value = p.value,
-                statistic = e, variance = variance, p = p, n = n, m = m,
+  RVAL2 <- list(standarized.statistic = statistic, p.value = p.value,
+                statistic = (pv_)*sqrt(p), variance = variance, p = p, n = n, m = m,
                 method = met, I.statistics = J, I.permutation.p.values = pv,
                 data.name = DNAME)
   }
 
-  if (method != "perm" & b.I == FALSE) {
-    RVAL2 <- list(standarized.statistic = statistic2, p.value = p.value,
+  if (method != "perm" & I.permutation.p.values == FALSE) {
+    RVAL2 <- list(standarized.statistic = statistic, p.value = p.value,
                   statistic = e, variance = variance, p = p, n = n, m = m,
                   method = met, I.statistics = J, data.name = DNAME)
   }
 
 
-  if (method != "perm" & b.I == TRUE) {
-    RVAL2 <- list(standarized.statistic = statistic2, p.value = p.value,
+  if (method != "perm" & I.permutation.p.values == TRUE) {
+    RVAL2 <- list(standarized.statistic = statistic, p.value = p.value,
                   statistic = e, variance = variance, p = p, n = n, m = m,
                   method = met, I.statistics = J, I.permutation.p.values = pv,
                   data.name = DNAME)
